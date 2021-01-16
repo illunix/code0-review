@@ -37,11 +37,18 @@ namespace Ravency.Areas.Panel.SubAreas.Catalog.Products
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> AddImage(IFormFile file)
+        public async Task<IActionResult> AddImages(IFormFileCollection files)
         {
-            await _dispatcher.Send(new AddImages.Command { Image = file });
-
             return Ok();
+        }
+
+        public async Task<IActionResult> Delete(Delete.Command command)
+        {
+            await _dispatcher.Send(command);
+
+            TempData["ToastrSuccess"] = "Successfully deleted product.";
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
