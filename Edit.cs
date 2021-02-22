@@ -8,7 +8,13 @@ namespace Ravency.Areas.Panel.SubAreas.Configuration.PaymentMethods
     [GenerateMediator]
     public static partial class Edit
     {
-        public sealed partial record Command(Guid Id, string ClientId, string ClientSecret, bool IsActive);
+        public sealed partial record Command
+        { 
+            public Guid Id { get; init; }
+            public string ClientId { get; init; }
+            public string ClientSecret { get; init; }
+            public bool IsActive { get; init; }
+        }
         
         public static async Task CommandHandler(Command command, ApplicationDbContext context)
         {

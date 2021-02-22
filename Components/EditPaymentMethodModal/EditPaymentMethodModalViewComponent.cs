@@ -10,6 +10,6 @@ namespace Ravency.Areas.Panel.SubAreas.Configuration.PaymentMethods.Components.E
     public partial class EditPaymentMethodModalViewComponent : ViewComponent
     {
         public IViewComponentResult Invoke()
-            => View(new Edit.Command(Guid.Empty, "", "", false));
+            => View(new Edit.Command());
     }
 }
