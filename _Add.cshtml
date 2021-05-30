@@ -1,0 +1,94 @@
+﻿@using Ravency.Infrastructure.Extensions
+
+<div class="modal fade" id="modal-add">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add New</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Add">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a class="nav-item nav-link active" href="#tab-general" data-toggle="tab">General</a>
+                        </li>
+                        <li>
+                            <a class="nav-item nav-link" href="#tab-data" data-toggle="tab">Data</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab-general">
+                            <ul class="nav nav-tabs mt-3" id="languages"></ul>
+                            <div class="tab-content p-3" id="content"></div>
+                        </div>
+                        <div class="tab-pane" id="tab-data">
+                            <div class="form-group p-3">
+                                <label>Gender</label>
+                                <select class="form-control">
+                                    <option value="0">Unisex</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" data-save="modal">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Resource(@<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>)
+@Html.Resource(
+    @<script>
+        const modalAdd = $('#modal-add');
+        
+        modalAdd.on('show.bs.modal', function (e) {
+            $.get('@Url.Action("Add")', function (data) {
+                if ($('#languages').children().length === 0 ) {
+                    $.each(data.languages, function (key, value) {
+                        const index = key - 1;
+                         $('#languages').append("<li>" + '<a class="nav-item nav-link ' + (value.isDefault ? 'active" ' : '" ') + 'href="#' + value.name + '-language" data-toggle="tab">' + value.name + "</a><li>");
+                         $('#content').append('<div class="tab-pane ' + (value.isDefault ? 'active" ' : '" ') + 'id="' + value.name + '-language">' + '<div class="form-group">' + '<label>Name</label>' + 
+                         (value.isDefault ? '' : '<input name="locales[' + index + '].languageId" ' + 'type="hidden" value="' + value.id + '" />') +  
+                         (value.isDefault ? '<input name="name" class="form-control" />' : '<input name="locales[' + index + '].name" ' + 'class="form-control" />') + '</div></div>');
+                    });
+                }                
+            });
+        });
+        
+        $.validator.setDefaults({
+            ignore: []
+        });
+            
+        modalAdd.on('click', '[data-save="modal"]', function (event) {
+            event.preventDefault();
+            
+            const form = modalAdd.find('form');
+            const actionUrl = form.attr('action');
+            const dataToSend = form.serialize();
+            
+            $.post(actionUrl, dataToSend).done(function (data) {
+                if ($.isEmptyObject(data.errors)) {
+                    window.location.href = data.redirect;
+                }
+                else {
+                    const validator = form.validate({
+                        errorElement: 'span',
+                        errorClass: 'text-danger',
+                        highlight: function (element, errorClass, validClass) {
+                            $(element).removeClass(errorClass);
+                        }
+                    });
+                    
+                    validator.showErrors(data.errors);
+                }
+            });
+        });
+    </script>
+)
